@@ -1,0 +1,12 @@
+version: '3.0'
+services:
+  web:
+    container_name: /$CONTAINER_FOLDER 
+    build: ./$LOCAL_FOLDER
+    ports:
+      - 8080:8080
+    working_dir: /web
+    volumes:
+      - ./$LOCAL_FOLDER:/$CONTAINER_FOLDER
+      - /$CONTAINER_FOLDER/node_modules
+    command: ./scripts/run.sh
