@@ -1,3 +1,4 @@
+'use strict';
 
 class EmailExistsError extends Error {
     constructor(message) {
@@ -13,7 +14,23 @@ class InvalidEmailError extends Error {
     }
 }
 
+class InvalidPasswordError extends Error {
+    constructor(message) {
+        super(message)
+        this.name = 'InvalidPasswordError'
+    }
+}
+
+class InvalidNameError extends Error {
+    constructor(message) {
+        super(message)
+        this.name = 'InvalidNameError'
+    }
+}
+
 module.exports = {
     EmailExistsError : EmailExistsError,
-    InvalidEmailError : InvalidEmailError
+    InvalidEmailError : InvalidEmailError,
+    InvalidPasswordError : InvalidPasswordError,
+    InvalidNameError : InvalidNameError
 }
