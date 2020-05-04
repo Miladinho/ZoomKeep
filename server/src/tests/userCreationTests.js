@@ -1,7 +1,7 @@
 "use strict";
 
 const App = require('../App.js')
-const DataBaseManagerMock = require('./mocks/DatabaseManagerMock.js')
+const DataBaseManagerFake = require('./mocks/DatabaseManagerFake.js')
 const assert = require('assert')
 
 describe('Create a new user', () => {
@@ -11,7 +11,7 @@ describe('Create a new user', () => {
     const validName = 'Johnny Tester'
 
     beforeEach(() => {
-        app = new App(new DataBaseManagerMock())
+        app = new App(new DataBaseManagerFake())
     })
 
     const invalids = [
@@ -51,19 +51,9 @@ describe('Create a new user', () => {
             )
         })
     })
-    const validNames = [
-        { input: 'jonny tester', expectedOutput: 'Jonny Tester' },
-        { input: 'jonny tester long name', expectedOutput: 'Jonny Tester Long Name' },
-        { input: 'jonny i. s. fancy', expectedOutput: 'Jonny I. S. Fancy' }
-    ].forEach( test => {
-        it(`should capitalize the first characters of name '${test.input}'`, async () => {
-            const result = await app.createUser(validEmail, validPwd, test.input)
-            assert.strictEqual(result.name, test.expectedOutput)
-        })
-    })
 
     it('should fail if email already in system', async () => {
-        app.createUser(validEmail, validPwd, validName)
+        await app.createUser(validEmail, validPwd, validName)
         await assert.rejects(app.createUser(validEmail, validPwd, validName),
             { name : 'EmailExistsError' }
         )
@@ -71,5 +61,30 @@ describe('Create a new user', () => {
 
     it('should pass/(not throw) for valid inputs', async () => {
         await assert.doesNotReject(app.createUser(validEmail, validPwd, validName))
+    })
+
+    it('should return an object with user name and email when successful', async () => {
+        assert.deepEqual(await app.createUser(validEmail, validPwd, validName),
+            { 
+                email: validEmail,
+                name: validName
+            }
+        )
+    })
+
+    const validNames = [
+        { input: 'jonny tester', expectedOutput: 'Jonny Tester' },
+        { input: 'jonny tester long name', expectedOutput: 'Jonny Tester Long Name' },
+        { input: 'jonny i. s. fancy', expectedOutput: 'Jonny I. S. Fancy' }
+    ].forEach( test => {
+        it(`should capitalize the first characters of name '${test.input}'`, async () => {
+            await app.createUser(validEmail, validPwd, test.input)
+            assert.deepEqual(await app.getUser(validEmail),
+                {
+                    email: validEmail,
+                    name: test.expectedOutput
+                }
+            )
+        })
     })
 })

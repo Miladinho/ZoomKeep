@@ -5,6 +5,7 @@ const { InvalidEmailError,
         InvalidPasswordError,
         InvalidNameError
     } = require('./errors.js')
+const User = require('./User.js')
 
 module.exports = class UserManager {
     constructor(manager) {
@@ -13,19 +14,20 @@ module.exports = class UserManager {
         this.setDBManager = (manager) => {
             dbManager = manager
         }
-    
-        this.createUser = async (user) => {
-            if (!user.email)
+        
+        this.getUser = async (email) => {
+            return dbManager.getUser(email)
+        }
+
+        this.createUser = async (email, password, name) => {
+            if (!email)
                 throw new InvalidEmailError()
-            if (!user.password)
+            if (!password)
                 throw new InvalidPasswordError()
-            if (!this.isValidName(user.name))
+            if (!this.isValidName(name))
                 throw new InvalidNameError()
-            
-            user.name = this.normalizeName(user.name)
             try {
-                await dbManager.createUser(user)
-                return user
+                return await dbManager.createUser(new User(email, password, this.normalizeName(name)))
             } catch (error) {
                 throw new EmailExistsError()
             }

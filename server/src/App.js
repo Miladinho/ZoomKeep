@@ -5,14 +5,23 @@ const UserManager = require('./UserManager.js')
 module.exports = class App {
     constructor(userDB) {
         let userManager = new UserManager(userDB)
-        
+
         this.createUser = async (email, password, name) => {
-            const userObj = {
-                name: name,
-                email: email,
-                password: password
+            try {
+                const user = await userManager.createUser(email, password, name)
+                return { name: user.getName(), email: user.getEmail() }
+            } catch (error) {
+                throw error
             }
-            return await userManager.createUser(userObj)
+        }
+
+        this.getUser = async (email) => {
+            try {
+                const user = await userManager.getUser(email)
+                return { name: user.getName(), email: user.getEmail() }
+            } catch (error) { 
+                throw error
+            }
         }
     }
 }
