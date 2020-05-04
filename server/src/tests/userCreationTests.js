@@ -1,17 +1,17 @@
 "use strict";
 
-const UserManager = require('../UserManager.js')
+const App = require('../App.js')
 const DataBaseManagerMock = require('./mocks/DatabaseManagerMock.js')
 const assert = require('assert')
 
 describe('Create a new user', () => {
-    const userManager = new UserManager()
+    let app = new App()
     const validEmail = 'test@test.com'
     const validPwd = 'aValidPassword'
     const validName = 'Johnny Tester'
 
     beforeEach(() => {
-        userManager.setDBManager(new DataBaseManagerMock())
+        app = new App(new DataBaseManagerMock())
     })
 
     const invalids = [
@@ -20,20 +20,20 @@ describe('Create a new user', () => {
         { case: '', name: 'empty string' }
     ]
     invalids.forEach( test => {
-        it(`should fail if email ${test.name}`, async () => {
-            await assert.rejects(userManager.createUser(test.case, validName, validName),
+        it(`should fail if email is ${test.name}`, async () => {
+            await assert.rejects(app.createUser(test.case, validName, validName),
                 { name : 'InvalidEmailError' }
             )
         })
 
         it(`should fail if password is ${test.name}`, async () => {
-            await assert.rejects(userManager.createUser(validEmail, test.case, validName),
+            await assert.rejects(app.createUser(validEmail, test.case, validName),
                 { name : 'InvalidPasswordError' }
             )
         })
 
         it(`should fail if name is ${test.name}`, async () => {
-            await assert.rejects(userManager.createUser(validEmail, validPwd, test.case),
+            await assert.rejects(app.createUser(validEmail, validPwd, test.case),
                 { name : 'InvalidNameError' }
             )
         })
@@ -46,30 +46,30 @@ describe('Create a new user', () => {
         { case: 'mIlAd', name: 'single name with mixed cases' }
     ].forEach( test => {
         it(`should fail if name input is ${test.name}`, async () => {
-            await assert.rejects(userManager.createUser(validEmail, validPwd, test.case),
+            await assert.rejects(app.createUser(validEmail, validPwd, test.case),
                 { name : 'InvalidNameError' }
             )
         })
     })
     const validNames = [
-        { input: 'jonny tester', output: 'Jonny Tester' },
-        { input: 'jonny tester long name', output: 'Jonny Tester Long Name' },
-        { input: 'jonny i. s. fancy', output: 'Jonny I. S. Fancy' }
+        { input: 'jonny tester', expectedOutput: 'Jonny Tester' },
+        { input: 'jonny tester long name', expectedOutput: 'Jonny Tester Long Name' },
+        { input: 'jonny i. s. fancy', expectedOutput: 'Jonny I. S. Fancy' }
     ].forEach( test => {
         it(`should capitalize the first characters of name '${test.input}'`, async () => {
-            const result = await userManager.createUser(validEmail, validPwd, test.input)
-            assert.strictEqual(result.name, test.output)
+            const result = await app.createUser(validEmail, validPwd, test.input)
+            assert.strictEqual(result.name, test.expectedOutput)
         })
     })
 
     it('should fail if email already in system', async () => {
-        userManager.createUser(validEmail, validPwd, validName)
-        await assert.rejects(userManager.createUser(validEmail, validPwd, validName),
+        app.createUser(validEmail, validPwd, validName)
+        await assert.rejects(app.createUser(validEmail, validPwd, validName),
             { name : 'EmailExistsError' }
         )
     })
 
     it('should pass/(not throw) for valid inputs', async () => {
-        await assert.doesNotReject(userManager.createUser(validEmail, validPwd, validName))
+        await assert.doesNotReject(app.createUser(validEmail, validPwd, validName))
     })
 })
