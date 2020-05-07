@@ -71,20 +71,4 @@ describe('Create a new user', () => {
             }
         )
     })
-
-    const validNames = [
-        { input: 'jonny tester', expectedOutput: 'Jonny Tester' },
-        { input: 'jonny tester long name', expectedOutput: 'Jonny Tester Long Name' },
-        { input: 'jonny i. s. fancy', expectedOutput: 'Jonny I. S. Fancy' }
-    ].forEach( test => {
-        it(`should capitalize the first characters of name '${test.input}'`, async () => {
-            await app.createUser(validEmail, validPwd, test.input)
-            assert.deepEqual(await app.getUser(validEmail),
-                {
-                    email: validEmail,
-                    name: test.expectedOutput
-                }
-            )
-        })
-    })
 })

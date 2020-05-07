@@ -14,14 +14,5 @@ module.exports = class App {
                 throw error
             }
         }
-
-        this.getUser = async (email) => {
-            try {
-                const user = await userManager.getUser(email)
-                return { name: user.getName(), email: user.getEmail() }
-            } catch (error) { 
-                throw error
-            }
-        }
     }
 }
