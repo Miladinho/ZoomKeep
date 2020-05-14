@@ -23,21 +23,21 @@ describe('User Creation Tests', () => {
 
         invalidInputs.forEach( test => {
             it(`should fail if email is ${test.name}`, async () => {
-                assert.rejects(app.createUser(test.case, validName, validName, role),
+                assert.rejects(app.addUser(test.case, validName, validName, role),
                     { name : 'InvalidEmailError' }
                 )
                 assert.equal(app.userManager.invokedCreateUser, false)
             })
 
             it(`should fail if password is ${test.name}`, async () => {
-                await assert.rejects(app.createUser(validEmail, test.case, validName, role),
+                await assert.rejects(app.addUser(validEmail, test.case, validName, role),
                     { name : 'InvalidPasswordError' }
                 )
                 assert.equal(app.userManager.invokedCreateUser, false)
             })
 
             it(`should fail if name is ${test.name}`, async () => {
-                await assert.rejects(app.createUser(validEmail, validPwd, test.case, role),
+                await assert.rejects(app.addUser(validEmail, validPwd, test.case, role),
                     { name : 'InvalidNameError' }
                 )
                 assert.equal(app.userManager.invokedCreateUser, false)
@@ -46,7 +46,7 @@ describe('User Creation Tests', () => {
 
         badNames.forEach( test => {
             it(`should fail if name input is ${test.name}`, async () => {
-                assert.rejects(app.createUser(validEmail, validPwd, test.case, role),
+                assert.rejects(app.addUser(validEmail, validPwd, test.case, role),
                     { name : 'InvalidNameError' }
                 )
                 assert.equal(app.userManager.invokedCreateUser, false)
@@ -59,7 +59,7 @@ describe('User Creation Tests', () => {
 
         malformedEmails.forEach( test => {
             it(`should thow when email input is ${test.name}`, async () => {
-                assert.rejects(app.createUser(test.case, validPwd, validName, role),
+                assert.rejects(app.addUser(test.case, validPwd, validName, role),
                     { name: 'InvalidEmailError'}
                 )
                 assert.equal(app.userManager.invokedCreateUser, false)
@@ -68,7 +68,7 @@ describe('User Creation Tests', () => {
 
         maliciousInputs.forEach( test => {
             it(`should thow when email input is ${test.name}`, async () => {
-                assert.rejects(app.createUser(test.case, validPwd, validName, role),
+                assert.rejects(app.addUser(test.case, validPwd, validName, role),
                     { name: 'InvalidEmailError'}
                 )
                 assert.equal(app.userManager.invokedCreateUser, false)
@@ -79,18 +79,18 @@ describe('User Creation Tests', () => {
     describe('Basic authentication', () => {
         beforeEach(() => app.setUserManager(new UserManagerFake()))
         it('should fail if email already in system', async () => {
-            await app.createUser(validEmail, validPwd, validName)
-            await assert.rejects(app.createUser(validEmail, validPwd, validName, role),
+            await app.addUser(validEmail, validPwd, validName)
+            await assert.rejects(app.addUser(validEmail, validPwd, validName, role),
                 { name : 'EmailExistsError' }
             )
         })
 
         it('should pass/(not throw) for valid inputs', async () => {
-            await assert.doesNotReject(app.createUser(validEmail, validPwd, validName, role))
+            await assert.doesNotReject(app.addUser(validEmail, validPwd, validName, role))
         })
 
         it('should return an object with user name, email, and role when successful', async () => {
-            assert.deepEqual(await app.createUser(validEmail, validPwd, validName, role),
+            assert.deepEqual(await app.addUser(validEmail, validPwd, validName, role),
                 { 
                     email: validEmail,
                     name: validName,

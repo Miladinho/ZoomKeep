@@ -1,24 +1,22 @@
 'use strict;'
 
 const User = require('../User')
+const UserManager = require('../UserManager')
 const { EmailExistsError } = require('../errors')
 
-module.exports.UserManagerSpy = class{
+module.exports.UserManagerSpy = class extends UserManager {
     constructor() {
-         this.invokedCreateUser = false
-         this.invokedLogin = false
+        super()
+        this.invokedCreateUser = false
     }
     createUser() {
         this.invokedCreateUser = true 
     }
-
-    login() {
-        this.invokedLogin =  true
-    }
 }
 
-module.exports.UserManagerFake = class {
+module.exports.UserManagerFake = class extends UserManager {
     constructor(email, password, name) {
+        super()
         this.data = new Map()
     }
     createUser(email, password, name, role) {
@@ -29,4 +27,4 @@ module.exports.UserManagerFake = class {
     }
 }
 
-module.exports.UserManagerDummy = class {}
+module.exports.UserManagerDummy = class extends UserManager {}

@@ -35,7 +35,7 @@ module.exports = class App {
      * @param {string} name
      * @return {Promise} Promise - object that contains user email
      */
-    async createUser(email, password, name, role) {
+    async addUser(email, password, name, role) {
         if (!email || !Validator.isEmail(email) || this.hasQuotedString(email))
             return Promise.reject(new InvalidEmailError())
         if (!password)
@@ -54,7 +54,7 @@ module.exports = class App {
         if (!Validator.isEmail(email) || this.hasQuotedString(email))
             return Promise.reject(new InvalidCredentialsError())
         try {
-            const result = await this.authorizer.login(email, password)
+            const result = await this.authorizer.getUser(email, password)
             return Promise.resolve(result)
         } catch (error) {
             return Promise.reject(error)

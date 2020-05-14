@@ -12,10 +12,6 @@ module.exports = class UserManager {
      * @param {string} name 
      */
     createUser(email, password, name) {
-
-    }
-
-    login(email, password) {
-
+        throw new Error('Must provide implementation')
     }
 }
