@@ -53,24 +53,3 @@ module.exports.RejectingUserManagerSpy = class extends module.exports.UserManage
         return Promise.resolve(null)
     }
 }
-
-module.exports.UserManagerFake = class extends module.exports.UserManagerSpy {
-    constructor(data) {
-        super()
-        this.data = data || new Map()
-    }
-    createUser(email, password, name, role) {
-        this.invokedCreateUser = true 
-        if (this.data.has(email))
-            return Promise.resolve(null)
-        this.data.set(email, new User(email, password, name, role))
-        return Promise.resolve(this.data.get(email))        
-    }
-
-    getUser(email) {
-        this.invokedGetUser = true
-        return Promise.resolve(this.data.get(email))
-    }
-}
-
-module.exports.UserManagerDummy = class extends UserManager {}
