@@ -2,35 +2,35 @@
 
 class EmailExistsError extends Error {
     constructor(message) {
-        super(message)
+        super('EmailExistsError')
         this.name = 'EmailExistsError'
     }
 }
 
 class InvalidEmailError extends Error {
     constructor(message) {
-        super(message)
+        super('InvalidEmailError')
         this.name = 'InvalidEmailError'
     }
 }
 
 class InvalidPasswordError extends Error {
     constructor(message) {
-        super(message)
+        super('InvalidPasswordError')
         this.name = 'InvalidPasswordError'
     }
 }
 
 class InvalidNameError extends Error {
     constructor(message) {
-        super(message)
+        super('InvalidNameError')
         this.name = 'InvalidNameError'
     }
 }
 
 class InvalidCredentialsError extends Error {
     constructor(message) {
-        super(message)
+        super('InvalidCredentialsError')
         this.name = 'InvalidCredentialsError'
     }
 }

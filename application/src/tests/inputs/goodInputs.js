@@ -13,3 +13,8 @@ module.exports.goodEmails = [
         name: 'subdomain email'
     }
 ]
+
+module.exports.validEmail = 'test@test.com'
+module.exports.validPwd = 'aValidPassword'
+module.exports.validName = 'Johnny Tester'
+module.exports.role = 'Tutor'

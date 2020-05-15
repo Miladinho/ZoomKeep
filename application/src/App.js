@@ -6,13 +6,13 @@ const {
     InvalidEmailError,
     InvalidPasswordError,
     InvalidNameError,
-    InvalidCredentialsError
+    InvalidCredentialsError,
+    EmailExistsError
  } = require('./errors.js')
 
 module.exports = class App {
-    constructor(userManager, authorizer) {
+    constructor(userManager) {
         this.userManager = userManager || new UserManager()
-        this.authorizer = authorizer
     }
 
     /**
@@ -22,10 +22,6 @@ module.exports = class App {
      */
     setUserManager(manager) {
         this.userManager = manager
-    }
-
-    setAuthorizer(authorizer) {
-        this.authorizer = authorizer
     }
 
     /**
@@ -42,6 +38,8 @@ module.exports = class App {
             return Promise.reject(new InvalidPasswordError())
         if (!this.isValidName(name))
             return Promise.reject(new InvalidNameError())
+        if (!(await this.userManager.getUser()))
+            return Promise.reject(new EmailExistsError())
         try {
             const user = await this.userManager.createUser(email, password, name, role)
             return Promise.resolve(user.serializeToJSON())
@@ -53,12 +51,10 @@ module.exports = class App {
     async login(email, password) {
         if (!Validator.isEmail(email) || this.hasQuotedString(email))
             return Promise.reject(new InvalidCredentialsError())
-        try {
-            const result = await this.authorizer.getUser(email, password)
-            return Promise.resolve(result)
-        } catch (error) {
-            return Promise.reject(error)
-        }
+        const result = await this.userManager.getUser(email, password)
+        if (!result)
+            return Promise.reject(new InvalidCredentialsError())
+        return Promise.resolve(result)
     }
 
     isValidName(name) {
