@@ -5,7 +5,8 @@ const assert = require('assert')
 const { maliciousInputs} = require('./inputs/badInputs')
 const {
     UserManagerSpy,
-    RejectingUserManagerSpy
+    RejectingUserManagerSpy,
+    AcceptingUserManagerSpy
 } = require('./UserManagerTestDoubles')
 const {
     validEmail,
@@ -40,19 +41,33 @@ describe('Login Tests', () => {
             assert.equal(rejectingUserManagerSpy.invokedGetUser, true)
         })
 
-        // it('should reject if password does not match', async () => {
-        //     assert.rejects(app.login(validEmail, 'badPassword'),
-        //         { name: 'InvalidCredentialsError'}
-        //     )
-        //     assert.equal(app.authorizer.invokedLogin, true)
-        // })
+        it('should reject if password does not match', async () => {
+            const acceptingUserManagerSpy= new AcceptingUserManagerSpy()
+            app.setUserManager(acceptingUserManagerSpy)
+            assert.rejects(app.login(validEmail, 'badPassword'),
+                { name: 'InvalidCredentialsError'}
+            )
+            assert.equal(acceptingUserManagerSpy.invokedGetUser, true)
+        })
 
-        // it('should pass/(not throw) for valid user credentials', async () => {
-        //     await app.createUser(validEmail, validPwd, validName)
-        //     assert.doesNotReject(app.login(validEmail, validPwd))
-        // })
+        it('should pass/(not throw) for valid user credentials', async () => {
+            const acceptingUserManagerSpy= new AcceptingUserManagerSpy()
+            app.setUserManager(acceptingUserManagerSpy)
+            assert.doesNotReject(app.login(validEmail, validPwd))
+            assert.equal(acceptingUserManagerSpy.invokedGetUser, true)
+        })
 
-        //it('should')
+        it('should return an object with username, email, and role when successful', async () => {
+            const acceptingUserManagerSpy = new AcceptingUserManagerSpy()
+            app.setUserManager(acceptingUserManagerSpy)
+            assert.deepEqual(await app.addUser(validEmail, validPwd, validName, role),
+                { 
+                    email: validEmail,
+                    name: validName,
+                    role: role
+                }
+            )
+            assert.equal(acceptingUserManagerSpy.invokedGetUser, true)
+        })
     })
 })
-

@@ -52,7 +52,7 @@ module.exports = class App {
         if (!Validator.isEmail(email) || this.hasQuotedString(email))
             return Promise.reject(new InvalidCredentialsError())
         const result = await this.userManager.getUser(email, password)
-        if (!result)
+        if (!result || result.getPassword() !== password)
             return Promise.reject(new InvalidCredentialsError())
         return Promise.resolve(result)
     }

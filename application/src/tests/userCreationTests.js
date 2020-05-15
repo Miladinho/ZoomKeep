@@ -92,7 +92,6 @@ describe('User Creation Tests', () => {
             const acceptingUserManagerSpy = new AcceptingUserManagerSpy()
             app.setUserManager(acceptingUserManagerSpy)
             assert.doesNotReject(app.addUser(validEmail, validPwd, validName, role))
-            console.log()
             assert.equal(acceptingUserManagerSpy.invokedGetUser, true)
         })
 
