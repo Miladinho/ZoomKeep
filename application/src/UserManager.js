@@ -15,4 +15,13 @@ module.exports = class UserManager {
     createUser(email, password, name) {
         throw new Error('Must provide implementation')
     }
+
+    /**
+     *  Retrieve a User if it exists
+     * @parm {string} email
+     * @return {User|null}
+     */
+    getUser(email) {
+        throw new Error('Must provide implementation')
+    }
 }
