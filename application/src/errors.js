@@ -1,44 +1,50 @@
 'use strict';
 
-class EmailExistsError extends Error {
+module.exports.EmailExistsError = class extends Error {
     constructor(message) {
         super('EmailExistsError')
         this.name = 'EmailExistsError'
     }
 }
 
-class InvalidEmailError extends Error {
+module.exports.InvalidEmailError = class extends Error {
     constructor(message) {
         super('InvalidEmailError')
         this.name = 'InvalidEmailError'
     }
 }
 
-class InvalidPasswordError extends Error {
+module.exports.InvalidPasswordError = class extends Error {
     constructor(message) {
         super('InvalidPasswordError')
         this.name = 'InvalidPasswordError'
     }
 }
 
-class InvalidNameError extends Error {
+module.exports.InvalidNameError = class extends Error {
     constructor(message) {
         super('InvalidNameError')
         this.name = 'InvalidNameError'
     }
 }
 
-class InvalidCredentialsError extends Error {
+module.exports.InvalidCredentialsError = class extends Error {
     constructor(message) {
         super('InvalidCredentialsError')
         this.name = 'InvalidCredentialsError'
     }
 }
 
-module.exports = {
-    EmailExistsError : EmailExistsError,
-    InvalidEmailError : InvalidEmailError,
-    InvalidPasswordError : InvalidPasswordError,
-    InvalidNameError : InvalidNameError,
-    InvalidCredentialsError : InvalidCredentialsError
+module.exports.UnauthorizedAccessError = class extends Error {
+    constructor(message) {
+        super('UnauthorizedAccessError')
+        this.name = 'UnauthorizedAccessError'
+    }
+}
+
+module.exports.EmailDoesNotExistError = class extends Error {
+    constructor(message) {
+        super('EmailDoesNotExistError')
+        this.name = 'EmailDoesNotExistError'
+    }
 }

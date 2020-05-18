@@ -7,12 +7,15 @@ const {
     InvalidPasswordError,
     InvalidNameError,
     InvalidCredentialsError,
-    EmailExistsError
+    EmailExistsError,
+    UnauthorizedAccessError,
+    EmailDoesNotExistError
  } = require('./errors.js')
 
 module.exports = class App {
-    constructor(userManager) {
-        this.userManager = userManager || new UserManager()
+    constructor(userManager, authorizer) {
+        this._userManager = userManager || new UserManager()
+        this._authorizer = authorizer
     }
 
     /**
@@ -21,7 +24,16 @@ module.exports = class App {
      * @returns Void
      */
     setUserManager(manager) {
-        this.userManager = manager
+        this._userManager = manager
+    }
+
+    /**
+     * Set a new Authorizer instance
+     * @param {Authorizer} authorizer 
+     * @returns Void
+     */
+    setAuthorizer(authorizer) {
+        this._authorizer = authorizer
     }
 
     /**
@@ -29,19 +41,22 @@ module.exports = class App {
      * @param {string} email
      * @param {string} password
      * @param {string} name
+     * @param {string} role
      * @return {Promise} Promise - object that contains user email
      */
-    async addUser(email, password, name, role) {
-        if (!email || !Validator.isEmail(email) || this.hasQuotedString(email))
+    async addUser(email, password, name, role, authToken) {
+        if (!await this._authorizer.isAuthorized(authToken,['admin']))
+            return Promise.reject(new UnauthorizedAccessError())
+        if (!email || !Validator.isEmail(email) || this._hasQuotedString(email))
             return Promise.reject(new InvalidEmailError())
         if (!password)
             return Promise.reject(new InvalidPasswordError())
-        if (!this.isValidName(name))
+        if (!this._isValidName(name))
             return Promise.reject(new InvalidNameError())
-        if (!(await this.userManager.getUser()))
+        if (!await this._userManager.getUser())
             return Promise.reject(new EmailExistsError())
         try {
-            const user = await this.userManager.createUser(email, password, name, role)
+            const user = await this._userManager.createUser(email, password, name, role)
             return Promise.resolve(user.serializeToJSON())
         } catch (error) {
             return Promise.reject(error)
@@ -49,19 +64,22 @@ module.exports = class App {
     }
 
     async login(email, password) {
-        if (!Validator.isEmail(email) || this.hasQuotedString(email))
+        if (!Validator.isEmail(email) || this._hasQuotedString(email))
             return Promise.reject(new InvalidCredentialsError())
-        const result = await this.userManager.getUser(email, password)
-        if (!result || result.getPassword() !== password)
+        const user = await this._userManager.getUser(email, password)
+        if (!user)
+            return Promise.reject(new EmailDoesNotExistError())
+        if (user.getPassword() !== password)
             return Promise.reject(new InvalidCredentialsError())
-        return Promise.resolve(result)
+        await this._authorizer.authorize(user)
+        return Promise.resolve({ authToken: user.getAuthToken() })
     }
 
-    isValidName(name) {
+    _isValidName(name) {
         return name && name.split(' ').length >= 2
     }
 
-    normalizeName(nameStr) {
+    _normalizeName(nameStr) {
         return nameStr
             .split(' ')
             .map( name => {
@@ -73,7 +91,7 @@ module.exports = class App {
             .join(' ')
     }
 
-    hasQuotedString(email) {
+    _hasQuotedString(email) {
         return email.length > 0 ? email.charAt(0) == '"' : false
     }
 
