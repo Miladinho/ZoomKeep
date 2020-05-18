@@ -19,15 +19,17 @@ const {
 describe('Login Tests', () => {
     const app = new App()
 
-    describe('Input security checks', () => {
-        maliciousInputs.forEach( test => {
-            it(`should reject if email is ${test.name}`, async () => {
-                const userManagerSpy = new UserManagerSpy()
-                app.setUserManager(userManagerSpy)
-                assert.rejects(app.login(test.case, validPwd),
-                    { name: 'InvalidCredentialsError'}
-                )
-                assert.equal(userManagerSpy.invokationsCount(), 0)
+    describe('Bad inputs checks', () => {
+        context('Security vulnerabilities', () => {
+            maliciousInputs.forEach( test => {
+                it(`should reject if email is ${test.name}`, async () => {
+                    const userManagerSpy = new UserManagerSpy()
+                    app.setUserManager(userManagerSpy)
+                    assert.rejects(app.login(test.case, validPwd),
+                        { name: 'InvalidCredentialsError'}
+                    )
+                    assert.equal(userManagerSpy.invokationsCount(), 0)
+                })
             })
         })
     })

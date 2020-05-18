@@ -80,60 +80,65 @@ describe('User Creation Tests', () => {
                 assert.equal(userManagerSpy.invokationsCount(), 0)
                 assert.equal(authorizerSpy.didInvokeMethod('isAuthorized'), true)            })
         })
-
-        maliciousInputs.forEach( test => {
-            it(`should thow when email input is ${test.name}`, async () => {
-                await assert.rejects(app.addUser(test.case, validPwd, validName, role, dummyAuthToken),
-                    { name: 'InvalidEmailError'}
-                )
-                assert.equal(userManagerSpy.invokationsCount(), 0)
-                assert.equal(authorizerSpy.didInvokeMethod('isAuthorized'), true)            })
+        context('Security vulnerabilities', () => {
+            maliciousInputs.forEach( test => {
+                it(`should thow when email input is ${test.name}`, async () => {
+                    await assert.rejects(app.addUser(test.case, validPwd, validName, role, dummyAuthToken),
+                        { name: 'InvalidEmailError'}
+                    )
+                    assert.equal(userManagerSpy.invokationsCount(), 0)
+                    assert.equal(authorizerSpy.didInvokeMethod('isAuthorized'), true)            })
+            })
         })
     })
 
     describe('Basic user creation', () => {
-        it('should reject if authToken is invalid', async () => {
-            authorizerSpy = new RejectingAuthorizerSpy()
-            app.setAuthorizer(authorizerSpy)
-            const authToken = { email: 'admin@app.com' }
+        context('failure cases', () => {
+            it('should reject if authToken is invalid', async () => {
+                authorizerSpy = new RejectingAuthorizerSpy()
+                app.setAuthorizer(authorizerSpy)
+                const authToken = { email: 'admin@app.com' }
 
-            await assert.rejects(app.addUser(validEmail, validPwd, validName, role, authToken),
-                { name: 'UnauthorizedAccessError' }
-            )
-            assert.equal(userManagerSpy.invokationsCount(), 0)
-            assert.equal(authorizerSpy.didInvokeMethod('isAuthorized'), true)
-        }) 
+                await assert.rejects(app.addUser(validEmail, validPwd, validName, role, authToken),
+                    { name: 'UnauthorizedAccessError' }
+                )
+                assert.equal(userManagerSpy.invokationsCount(), 0)
+                assert.equal(authorizerSpy.didInvokeMethod('isAuthorized'), true)
+            }) 
 
-        it('should fail if email already in system', async () => {
-            userManagerSpy = new RejectingUserManagerSpy()
-            app.setUserManager(userManagerSpy)
-            await assert.rejects(app.addUser(validEmail, validPwd, validName, role, dummyAuthToken),
-                { name : 'EmailExistsError' }
-            )
-            assert.equal(userManagerSpy.invokedGetUser, true)
-            assert.equal(userManagerSpy.invokedCreateUser, false)
-            assert.equal(authorizerSpy.didInvokeMethod('isAuthorized'), true)        })
-
-        it('should pass/(not throw) for valid inputs', async () => {
-            userManagerSpy = new AcceptingUserManagerSpy()
-            app.setUserManager(userManagerSpy)
-
-            await assert.doesNotReject(app.addUser(validEmail, validPwd, validName, role, dummyAuthToken))
-            assert.equal(userManagerSpy.invokationsCount() === 0, false)
-            assert.equal(authorizerSpy.didInvokeMethod('isAuthorized'), true)
+            it('should fail if email already in system', async () => {
+                userManagerSpy = new RejectingUserManagerSpy()
+                app.setUserManager(userManagerSpy)
+                await assert.rejects(app.addUser(validEmail, validPwd, validName, role, dummyAuthToken),
+                    { name : 'EmailExistsError' }
+                )
+                assert.equal(userManagerSpy.invokedGetUser, true)
+                assert.equal(userManagerSpy.invokedCreateUser, false)
+                assert.equal(authorizerSpy.didInvokeMethod('isAuthorized'), true)
+            })
         })
+        context('success cases', () => {
+            it('should pass/(not throw) for valid inputs', async () => {
+                userManagerSpy = new AcceptingUserManagerSpy()
+                app.setUserManager(userManagerSpy)
 
-        it('should return an object with username, email, and role when successful', async () => {
-            userManagerSpy = new AcceptingUserManagerSpy()
-            app.setUserManager(userManagerSpy)
-            assert.deepEqual(await app.addUser(validEmail, validPwd, validName, role, dummyAuthToken),
-                { 
-                    email: validEmail,
-                    name: validName,
-                    role: role
-                }
-            )
-            assert.equal(authorizerSpy.didInvokeMethod('isAuthorized'), true)
+                await assert.doesNotReject(app.addUser(validEmail, validPwd, validName, role, dummyAuthToken))
+                assert.equal(userManagerSpy.invokationsCount() === 0, false)
+                assert.equal(authorizerSpy.didInvokeMethod('isAuthorized'), true)
+            })
+
+            it('should return an object with username, email, and role when successful', async () => {
+                userManagerSpy = new AcceptingUserManagerSpy()
+                app.setUserManager(userManagerSpy)
+                assert.deepEqual(await app.addUser(validEmail, validPwd, validName, role, dummyAuthToken),
+                    { 
+                        email: validEmail,
+                        name: validName,
+                        role: role
+                    }
+                )
+                assert.equal(authorizerSpy.didInvokeMethod('isAuthorized'), true)
+            })
         })
     })
 })
