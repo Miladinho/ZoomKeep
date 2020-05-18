@@ -3,5 +3,15 @@
         <h1>
             Hello From LA Tutors Online!
         </h1>
+        <form action="./upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="videoFiles" id="videoFiles" multiple><br>
+            <button type="submit">Upload!</button>
+        </form>
+        <script>
+            const videoFiles = document.getElementById("videoFiles")
+            videoFiles.addEventListener("change", () => {
+                console.log(videoFiles.files)
+            })
+        </script>
     </body>
 </html>
