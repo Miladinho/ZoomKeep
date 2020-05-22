@@ -2,6 +2,10 @@
 
 const UserManager = require('./UserManager')
 const Validator = require('validator')
+const {
+    isValidName,
+    hasQuotedString
+} = require('./helpers')
 const { 
     InvalidEmailError,
     InvalidPasswordError,
@@ -47,13 +51,13 @@ module.exports = class App {
     async addUser(email, password, name, role, authToken) {
         if (!await this._authorizer.isAuthorized(authToken,['admin']))
             return Promise.reject(new UnauthorizedAccessError())
-        if (!email || !Validator.isEmail(email) || this._hasQuotedString(email))
+        if (!email || !Validator.isEmail(email) || hasQuotedString(email))
             return Promise.reject(new InvalidEmailError())
         if (!password)
             return Promise.reject(new InvalidPasswordError())
-        if (!this._isValidName(name))
+        if (!isValidName(name))
             return Promise.reject(new InvalidNameError())
-        if (!await this._userManager.getUser())
+        if (null !== await this._userManager.getUser(email))
             return Promise.reject(new EmailExistsError())
         try {
             const user = await this._userManager.createUser(email, password, name, role)
@@ -62,11 +66,15 @@ module.exports = class App {
             return Promise.reject(error)
         }
     }
-
+    /**
+     * Authenticates a user
+     * @param {string} email 
+     * @param {string} password 
+     */
     async login(email, password) {
-        if (!Validator.isEmail(email) || this._hasQuotedString(email))
+        if (!Validator.isEmail(email) || hasQuotedString(email))
             return Promise.reject(new InvalidCredentialsError())
-        const user = await this._userManager.getUser(email, password)
+        const user = await this._userManager.getUser(email)
         if (!user)
             return Promise.reject(new EmailDoesNotExistError())
         if (user.getPassword() !== password)
@@ -74,25 +82,17 @@ module.exports = class App {
         await this._authorizer.authorize(user)
         return Promise.resolve({ authToken: user.getAuthToken() })
     }
-
-    _isValidName(name) {
-        return name && name.split(' ').length >= 2
+    /**
+     * Post a video if authorized
+     * @param {*} authToken 
+     * @param {*} postingUserID 
+     * @param {*} video 
+     */
+    async uploadVideo(authToken, postingUserID, video) {
+        const isValidToken = await this._authorizer.isAuthorized(authToken)
+        const isAuthorized = ''
+        if (!isValidToken || !isAuthorized)
+            return Promise.reject(new UnauthorizedAccessError())
+        const user = this._userManager.getUser(email)
     }
-
-    _normalizeName(nameStr) {
-        return nameStr
-            .split(' ')
-            .map( name => {
-                return name
-                    .split('')
-                    .map( (char, i) => i == 0? char.toUpperCase() : char)
-                    .join('')
-            })
-            .join(' ')
-    }
-
-    _hasQuotedString(email) {
-        return email.length > 0 ? email.charAt(0) == '"' : false
-    }
-
 }

@@ -8,7 +8,7 @@ class AuthorizerSpy extends Authorizer {
         this.invokations = new Map()
     }
 
-    invokeMethod(methodName) {
+    _invokeMethod(methodName) {
         this.invokations.set(methodName, (this.invokations.get(methodName) || 0) + 1)
     }
 
@@ -24,7 +24,7 @@ class AuthorizerSpy extends Authorizer {
 module.exports.AcceptingAuthorizerSpy = class extends AuthorizerSpy {
     constructor() { super() }
     isAuthorized() {
-        this.invokeMethod('isAuthorized')
+        this._invokeMethod('isAuthorized')
         return Promise.resolve(true)
     }
 }
@@ -32,7 +32,7 @@ module.exports.AcceptingAuthorizerSpy = class extends AuthorizerSpy {
 module.exports.RejectingAuthorizerSpy = class extends AuthorizerSpy {
     constructor() { super() }
     isAuthorized() {
-        this.invokeMethod('isAuthorized')
+        this._invokeMethod('isAuthorized')
         return Promise.resolve(false)
     }
 }

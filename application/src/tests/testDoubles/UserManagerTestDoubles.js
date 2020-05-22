@@ -25,6 +25,16 @@ module.exports.UserManagerSpy = class extends UserManager {
     }
 }
 
+module.exports.CreateUserMethod_AcceptingUserManagerMock = class extends UserManager {
+    createUser(email, password, name, role) {
+        return Promise.resolve(new User(email, password, name, role))
+    }
+
+    getUser(email) {
+        return Promise.resolve(null)
+    }
+}
+
 module.exports.AcceptingUserManagerSpy = class extends module.exports.UserManagerSpy {
     constructor() {
         super()

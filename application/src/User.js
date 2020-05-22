@@ -1,5 +1,13 @@
 
 module.exports = class User {
+    /**
+     * Create a new User
+     * @param {string} email 
+     * @param {string} password 
+     * @param {string} name 
+     * @param {string} role
+     * @returns {User} new User instance
+     */
     constructor(email, password, name, role) {
         var email = email
         var name = name
